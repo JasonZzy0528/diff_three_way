@@ -1,0 +1,30 @@
+{
+  "name": "diff_three_way",
+  "version": "0.0.1",
+  "description": "",
+  "main": "./lib",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "diff",
+    "three way merge"
+  ],
+  "author": "Zeyu Zhao",
+  "license": "MIT",
+  "dependencies": {
+    "diff-match-patch": "^1.0.0",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.0.1",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "eslint": "^4.8.0",
+    "eslint-loader": "^1.9.0"
+  },
+  "engines": {
+    "node": ">=6"
+  }
+}
