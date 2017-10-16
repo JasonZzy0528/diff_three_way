@@ -1,47 +1,3 @@
-import concat from 'lodash/concat'
-import forEach from 'lodash/forEach'
-
-let genDiffLoop = (action, content) => {
-  let diffs = []
-  forEach(content, char => {
-    diffs.push([action, char])
-  })
-  return diffs
-}
-
-let genOptDiff = (range, patches, content, start, end) => {
-  let optDiff = []
-  forEach(range, (position, index) => {
-    if(index % 2 !== 0){
-      const patch = patches[Math.floor(index/2)]
-      forEach(patch.diffs, diff => {
-        const action = diff[0]
-        const actionContent = diff[1]
-        let diffs = []
-        if(actionContent.length > 1){
-          diffs = genDiffLoop(action, actionContent)
-        }else{
-          diffs.push(diff)
-        }
-        optDiff = concat(optDiff, diffs)
-      })
-    }else{
-      const begin = index === 0 ? start : range[index - 1]
-      if(position > begin){
-        const equalContent = content.substring(begin, position)
-        const equalDiff = genDiffLoop(0, equalContent)
-        optDiff = concat(optDiff, equalDiff)
-      }
-    }
-    if(index === range.length - 1 && position !== end){
-      const equalContent = content.substring(position, end)
-      const equalDiff = genDiffLoop(0, equalContent)
-      optDiff = concat(optDiff, equalDiff)
-    }
-  })
-  return optDiff
-}
-
 let enableArrayEquals = () => {
   // Warn if overriding existing method
   if(Array.prototype.equals) console.warn('Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there\'s a framework conflict or you\'ve got double inclusions in your code.')
@@ -71,7 +27,5 @@ let enableArrayEquals = () => {
 }
 
 export default {
-  enableArrayEquals: enableArrayEquals,
-  genOptDiff: genOptDiff,
-  genDiffLoop: genDiffLoop
+  enableArrayEquals: enableArrayEquals
 }

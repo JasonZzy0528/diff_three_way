@@ -1,31 +1,33 @@
+/* eslint-env mocha */
+/* eslint no-unused-vars: 0*/
+
+import should from 'should'
+import forEach from 'lodash/forEach'
+import map from 'lodash/map'
 import Content from '../src'
+import contentData from './data/content-data'
 
-
-const text = 'beep boop beep boop beep boop beep boop beep boop beep boop boop beep boop beep boop beep boop beep boop beep boop'
-const content = new Content(text)
-const changes1 = [
-  {
-    start: 5,
-    orgChars: 'boop beep',
-    newChars: 'boos beep'
-  }
-]
-
-const changes2 = [
-  {
-    start: 5,
-    orgChars: 'boop beep',
-    newChars: 'boop bees'
-  }
-]
-const patch1 = content.createPatch(changes1)
-const patch2 = content.createPatch(changes2)
-
-let patches = [patch1, patch2]
-content.loadPatches(patches)
-content.applyPatch(patch1)
-console.log(content.getContent())
-const newPatches = content.getPatches()
-content.applyPatch(newPatches[0])
-console.log(content.getContent())
-
+describe('Insert', function() {
+  const insert = Object.keys(contentData)[0]
+  const data = contentData[insert]
+  describe(insert, function() {
+    it('should patches all insert actions ', function() {
+      let content = new Content(data.content)
+      let patches = map(data.changes, change => {
+        return content.createPatch(change)
+      })
+      content.loadPatches(patches)
+      let hasPatch = true
+      while(hasPatch){
+        const patchesInContent = content.getPatches()
+        if(patchesInContent.length > 0){
+          content.applyPatch(patchesInContent[0])
+        }else{
+          hasPatch = false
+        }
+      }
+      const mergedContent = content.getContent()
+      mergedContent.should.be.eql(data.result)
+    })
+  })
+})

@@ -1,5 +1,6 @@
 /* See LICENSE file for terms of use */
 
+import concat from 'lodash/concat'
 import filter from 'lodash/filter'
 import forEach from 'lodash/forEach'
 import indexOf from 'lodash/indexOf'
@@ -104,9 +105,9 @@ class Content {
     const end = max([max(optBCharsRange), max(optCCharsRange)])
     if(end >= contentLength) throw new Error('incorrect patch')
     const editingContent = content.substring(start, end)
-    let contentDiff = util.genDiffLoop(0, editingContent)
-    let optBDiff = util.genOptDiff(optBCharsRange, optB, content, start, end)
-    let optCDiff = util.genOptDiff(optCCharsRange, optC, content, start, end)
+    let contentDiff = this.genDiffLoop(0, editingContent)
+    let optBDiff = this.genOptDiff(optBCharsRange, optB, content, start, end)
+    let optCDiff = this.genOptDiff(optCCharsRange, optC, content, start, end)
     let next = true
     let i = 0
     let newContent = []
@@ -236,6 +237,48 @@ class Content {
       patches.push(patch)
     })
     return patches
+  }
+
+  genOptDiff(range, patches, content, start, end) {
+    let me = this
+    let optDiff = []
+    forEach(range, (position, index) => {
+      if(index % 2 !== 0){
+        const patch = patches[Math.floor(index/2)]
+        forEach(patch.diffs, diff => {
+          const action = diff[0]
+          const actionContent = diff[1]
+          let diffs = []
+          if(actionContent.length > 1){
+            diffs = me.genDiffLoop(action, actionContent)
+          }else{
+            diffs.push(diff)
+          }
+          optDiff = concat(optDiff, diffs)
+        })
+      }else{
+        const begin = index === 0 ? start : range[index - 1]
+        if(position > begin){
+          const equalContent = content.substring(begin, position)
+          const equalDiff = me.genDiffLoop(0, equalContent)
+          optDiff = concat(optDiff, equalDiff)
+        }
+      }
+      if(index === range.length - 1 && position !== end){
+        const equalContent = content.substring(position, end)
+        const equalDiff = me.genDiffLoop(0, equalContent)
+        optDiff = concat(optDiff, equalDiff)
+      }
+    })
+    return optDiff
+  }
+
+  genDiffLoop (action, content) {
+    let diffs = []
+    forEach(content, char => {
+      diffs.push([action, char])
+    })
+    return diffs
   }
 }
 
