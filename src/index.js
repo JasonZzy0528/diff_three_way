@@ -107,8 +107,6 @@ class Content {
     let contentDiff = util.genDiffLoop(0, editingContent)
     let optBDiff = util.genOptDiff(optBCharsRange, optB, content, start, end)
     let optCDiff = util.genOptDiff(optCCharsRange, optC, content, start, end)
-
-
     let next = true
     let i = 0
     let newContent = []
@@ -191,7 +189,7 @@ class Content {
 
   getPatches() {
     const patches = this.patches
-    return map(patches, patch => { return patch[0] })
+    return map(filter(patches, patch => {return patch[1]}), patch => { return patch[0] })
   }
 
   getContent() {

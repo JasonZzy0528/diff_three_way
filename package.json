@@ -3,15 +3,6 @@
   "version": "0.0.1",
   "description": "",
   "main": "./lib",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "diff",
-    "three way merge"
-  ],
-  "author": "Zeyu Zhao",
-  "license": "MIT",
   "dependencies": {
     "diff-match-patch": "^1.0.0",
     "lodash": "^4.17.4"
@@ -22,9 +13,28 @@
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.0",
     "eslint": "^4.8.0",
-    "eslint-loader": "^1.9.0"
+    "eslint-loader": "^1.9.0",
+    "mocha": "^4.0.1",
+    "should": "^13.1.2"
   },
+  "scripts": {
+    "test": "mocha --require babel-register"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JasonZzy0528/diff_three_way.git"
+  },
+  "keywords": [
+    "diff",
+    "three way merge"
+  ],
+  "author": "Zeyu Zhao",
+  "license": "MIT",
   "engines": {
     "node": ">=6"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/JasonZzy0528/diff_three_way/issues"
+  },
+  "homepage": "https://github.com/JasonZzy0528/diff_three_way#readme"
 }

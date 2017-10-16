@@ -33,7 +33,7 @@ let genOptDiff = (range, patches, content, start, end) => {
         optDiff = concat(optDiff, equalDiff)
       }
     }
-    if(index === range.legnth - 1 && position !== end){
+    if(index === range.length - 1 && position !== end){
       const equalContent = content.substring(position, end)
       const equalDiff = genDiffLoop(0, equalContent)
       optDiff = concat(optDiff, equalDiff)
