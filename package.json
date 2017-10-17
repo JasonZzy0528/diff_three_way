@@ -1,6 +1,6 @@
 {
   "name": "diff_three_way",
-  "version": "0.0.1-SNAPSHOT",
+  "version": "0.1.0-SNAPSHOT",
   "description": "",
   "main": "./lib",
   "dependencies": {
@@ -31,7 +31,8 @@
   "author": "Zeyu Zhao",
   "license": "MIT",
   "engines": {
-    "node": ">=6"
+    "node": ">=6",
+    "npm": ">=3.10"
   },
   "bugs": {
     "url": "https://github.com/JasonZzy0528/diff_three_way/issues"
