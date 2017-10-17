@@ -8,6 +8,7 @@
     "lodash": "^4.17.4"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.1",
     "babel-loader": "^7.1.2",
@@ -15,9 +16,12 @@
     "eslint": "^4.8.0",
     "eslint-loader": "^1.9.0",
     "mocha": "^4.0.1",
-    "should": "^13.1.2"
+    "should": "^13.1.2",
+    "webpack": "^3.7.1"
   },
   "scripts": {
+    "build-not-work": "rimraf dist && webpack --colors --config ./build/webpack/webpack.config.prod.js  --progress",
+    "build-work": "rimraf dist && mkdir dist && mkdir dist/util && babel ./src/index.js --out-file ./dist/index.js && babel ./src/util/index.js --out-file ./dist/util/index.js",
     "test": "mocha --require babel-register"
   },
   "repository": {

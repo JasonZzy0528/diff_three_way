@@ -1,4 +1,5 @@
 /* See LICENSE file for terms of use */
+'use strict'
 
 import concat from 'lodash/concat'
 import filter from 'lodash/filter'
