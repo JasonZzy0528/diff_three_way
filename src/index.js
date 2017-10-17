@@ -91,15 +91,19 @@ class Content {
     const contentLength = content.length
     let optBCharsRange = []
     let optCCharsRange = []
+    let optBChanges = 0
+    let optCChanges = 0
     forEach(optB, patch => {
-      const { start1, length1 } = patch
-      optBCharsRange.push(start1)
-      optBCharsRange.push(start1 + length1)
+      const { start1, length1, length2 } = patch
+      optBCharsRange.push(start1 - optBChanges)
+      optBCharsRange.push(start1 - optBChanges + length1)
+      optBChanges += length2 - length1
     })
     forEach(optC, patch => {
-      const { start1, length1 } = patch
-      optCCharsRange.push(start1)
-      optCCharsRange.push(start1 + length1)
+      const { start1, length1, length2 } = patch
+      optCCharsRange.push(start1 - optCChanges)
+      optCCharsRange.push(start1 - optCChanges + length1)
+      optCChanges += length2 - length1
     })
     const start = min([min(optBCharsRange), min(optCCharsRange)])
     const end = max([max(optBCharsRange), max(optCCharsRange)])
