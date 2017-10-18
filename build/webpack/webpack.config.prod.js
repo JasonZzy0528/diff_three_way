@@ -1,10 +1,10 @@
-// const webpack = require('webpack')
+const webpack = require('webpack')
 const env = require('../env')
 
 const ENTRY = env.ENTRY
 const OUTPUT = env.OUTPUT
-// const NODE_ENV = env.NODE_ENV
-process.env.NODE_ENV = 'production'
+const NODE_ENV = env.NODE_ENV
+
 const webpackConfig = {
   devtool: 'source-map',
   entry: {
@@ -12,21 +12,23 @@ const webpackConfig = {
   },
   output: {
     path: OUTPUT,
-    filename: 'js/[name].js',
-    sourceMapFilename: 'source-map/[name].source.map'
+    filename: 'js/index.js',
+    sourceMapFilename: 'source-map/[name].source.map',
+    library: 'diff_three_way',
+    libraryTarget: 'umd',
   },
   plugins: [
-    // new webpack.DefinePlugin({
-    //   'process.env': NODE_ENV,
-    // }),
-    // new webpack.optimize.UglifyJsPlugin({
-    //   beautify: false,
-    //   compress: {
-    //     warnings: false
-    //   },
-    //   sourceMap: true,
-    //   comments: false
-    // })
+    new webpack.DefinePlugin({
+      'process.env': NODE_ENV,
+    }),
+    new webpack.optimize.UglifyJsPlugin({
+      beautify: false,
+      compress: {
+        warnings: false
+      },
+      sourceMap: true,
+      comments: false
+    })
   ],
   module: {
     rules: [
