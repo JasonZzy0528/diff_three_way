@@ -3,24 +3,24 @@
   "version": "0.2.0",
   "description": "",
   "main": "./lib/js",
-  "dependencies": {
-    "diff-match-patch": "^1.0.0",
-    "lodash": "^4.17.4"
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.1",
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.0",
+    "diff-match-patch": "^1.0.0",
     "eslint": "^4.8.0",
     "eslint-loader": "^1.9.0",
+    "lodash": "^4.17.4",
     "mocha": "^4.0.1",
     "should": "^13.1.2",
     "webpack": "^3.7.1"
   },
   "scripts": {
     "build": "rimraf lib && webpack --colors --config ./build/webpack/webpack.config.prod.js  --progress",
+    "lint": "eslint src test ./webpack.config.prod.js --ext '.js'",
     "test": "mocha --require babel-register"
   },
   "repository": {
