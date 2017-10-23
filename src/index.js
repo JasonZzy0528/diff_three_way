@@ -285,6 +285,14 @@ class Content {
     })
     return diffs
   }
+
+  patchToText (patches) {
+    return this.diffMatchPatch.patch_toText(patches)
+  }
+
+  patchFromText (text) {
+    return this.diffMatchPatch.patch_fromText(text)
+  }
 }
 
 export default Content
