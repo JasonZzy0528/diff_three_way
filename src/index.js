@@ -38,7 +38,7 @@ class Content {
 
   applyPatch(patch, isReturnContent) {
     let content = this.content
-    forEach(patch, ptc => {
+    forEach(patch[0], ptc => {
       const { diffs, start1, length1 } = ptc
       let replacement = ''
       forEach(diffs, diff => {
@@ -52,7 +52,7 @@ class Content {
       return content
     }else{
       this.newContent = content
-      this.updatePatches(patch)
+      this.updatePatches(patch[0])
     }
   }
 

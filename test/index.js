@@ -49,7 +49,7 @@ describe('Insert', function() {
             forEach(patches, (ptc, index) => {
               const patchesInContent = contentObj.getPatches()
               if(patchesInContent[index][1]){
-                contentObj.applyPatch(patchesInContent[index][0])
+                contentObj.applyPatch(patchesInContent[index])
               }
             })
             const mergedContent = contentObj.getContent()
@@ -81,7 +81,7 @@ describe('Delete', function() {
             forEach(patches, (ptc, index) => {
               const patchesInContent = contentObj.getPatches()
               if(patchesInContent[index][1]){
-                contentObj.applyPatch(patchesInContent[index][0])
+                contentObj.applyPatch(patchesInContent[index])
               }
             })
             const mergedContent = contentObj.getContent()
@@ -113,7 +113,7 @@ describe('Replace', function() {
             forEach(patches, (ptc, index) => {
               const patchesInContent = contentObj.getPatches()
               if(patchesInContent[index][1]){
-                contentObj.applyPatch(patchesInContent[index][0])
+                contentObj.applyPatch(patchesInContent[index])
               }
             })
             const mergedContent = contentObj.getContent()
@@ -146,7 +146,7 @@ describe('Mixed', function() {
             forEach(patches, (ptc, index) => {
               const patchesInContent = contentObj.getPatches()
               if(patchesInContent[index][1]){
-                contentObj.applyPatch(patchesInContent[index][0])
+                contentObj.applyPatch(patchesInContent[index])
               }
             })
             const mergedContent = contentObj.getContent()
