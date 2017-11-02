@@ -8,16 +8,19 @@ export default {
       normal: {
         changes: [
           [{
+            id: 1,
             start: 257,
             orgChars: '>',
             newChars: '>Wonderful '
           }],
           [{
+            id: 2,
             start: 298,
             orgChars: '.',
             newChars: '. It\'s easy to customize and style Atom. You can tweak the look and feel of your UI with CSS/Less and add major features with HTML and JavaScript. Check out the video on.'
           }],
           [{
+            id: 3,
             start: 166,
             orgChars: '>',
             newChars: '><h3>Under the hood</h3>'
@@ -28,26 +31,31 @@ export default {
       pressure: {
         changes: [
           [{
+            id: 1,
             start: 43,
             orgChars: '>',
             newChars: '><p>This is the Atom welcome screen and gives you a pretty good starting point for how to get started with the editor.</p>'
           }],
           [{
+            id: 2,
             start: 1115,
             orgChars: '>',
             newChars: '><p>You can find definitions for all of the various terms that we use throughout the manual in our <a href="/resources/sections/glossary/">Glossary</a>.</p>'
           }],
           [{
+            id: 3,
             start: 447,
             orgChars: ',',
             newChars: ',<img src="../../images/platform-selector.png" alt="Platform Selector" title="Platform Selector">'
           }],
           [{
+            id: 4,
             start: 4065,
             orgChars: '>',
             newChars: '><p>Parses a block of text (which was presumably created by the patch_toText function) and returns an array of patch objects.</p>'
           }],
           [{
+            id: 5,
             start: 4662,
             orgChars: '.',
             newChars: '. Reduces an array of patch objects to a block of text which looks extremely similar to the standard GNU diff/patch format. This text may be stored or transmitted.'
@@ -60,16 +68,19 @@ export default {
       normal: {
         changes: [
           [{
+            id: 1,
             start: 225,
             orgChars: '<a href="https://atom.io/themes">themes</a> ',
             newChars: ''
           }],
           [{
+            id: 2,
             start: 152,
             orgChars: '<h3>Themes</h3>',
             newChars: ''
           }],
           [{
+            id: 3,
             start: 391,
             orgChars: 'community ',
             newChars: ''
@@ -80,22 +91,26 @@ export default {
       pressure: {
         changes: [
           [{
+            id: 1,
             start: 287,
             orgChars: '<p>Editors like Sublime and TextMate offer convenience but only limited extensibility. On the other end of the spectrum, Emacs and Vim offer extreme flexibility, but they aren\'t very approachable and can only be customized with special-purpose scripting languages.</p>',
             newChars: ''
           }],
           [{
+            id: 2,
             start: 2418,
             orgChars: 'JavaScript ',
             newChars: ''
           }],
           [{
+            id: 3,
             start: 1537,
             orgChars: 'But first, ',
             newChars: ''
           }],
           [
             {
+              id: 4,
               start: 4187,
               orgChars: 'Native UI technologies come and go, but the web is a standard that becomes more capable and ubiquitous with every passing year. We\'re excited to dig deeper into its toolbox.',
               newChars: ''
@@ -114,16 +129,19 @@ export default {
       normal: {
         changes: [
           [{
+            id: 1,
             start: 48,
             orgChars: 'left',
             newChars: 'right'
           }],
           [{
+            id: 2,
             start: 145,
             orgChars: 'right',
             newChars: 'left'
           }],
           [{
+            id: 3,
             start: 152,
             orgChars: '<h3>Themes</h3><p>Atom comes pre-installed with four UI and eight syntax <a href="https://atom.io/themes">themes</a> in both dark and light colors. If you can\'t find what you\'re looking for, you can also install themes created by the Atom community or create your own.</p>',
             newChars: '<h3>Open source</h3><p>Atom is open source. Be part of the Atom community or help improve your favorite text editor.</p>'
@@ -136,16 +154,19 @@ export default {
       normal: {
         changes: [
           [{
+            id: 1,
             start: 48,
             orgChars: 'left',
             newChars: 'right'
           }],
           [{
+            id: 2,
             start: 145,
             orgChars: 'right',
             newChars: 'left'
           }],
           [{
+            id: 3,
             start: 152,
             orgChars: '<h3>Themes</h3><p>Atom comes pre-installed with four UI and eight syntax <a href="https://atom.io/themes">themes</a> in both dark and light colors. If you can\'t find what you\'re looking for, you can also install themes created by the Atom community or create your own.</p>',
             newChars: '<h3>Open source</h3><p>Atom is open source. Be part of the Atom community or help improve your favorite text editor.</p>'

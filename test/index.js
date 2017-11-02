@@ -46,15 +46,12 @@ describe('Insert', function() {
               return contentObj.createPatch(change)
             })
             contentObj.loadPatches(patches)
-            let hasPatch = true
-            while(hasPatch){
+            forEach(patches, (ptc, index) => {
               const patchesInContent = contentObj.getPatches()
-              if(patchesInContent.length > 0){
-                contentObj.applyPatch(patchesInContent[0])
-              }else{
-                hasPatch = false
+              if(patchesInContent[index][1]){
+                contentObj.applyPatch(patchesInContent[index][0])
               }
-            }
+            })
             const mergedContent = contentObj.getContent()
             mergedContent.should.be.eql(data[key].result)
           })
@@ -81,15 +78,12 @@ describe('Delete', function() {
               return contentObj.createPatch(change)
             })
             contentObj.loadPatches(patches)
-            let hasPatch = true
-            while(hasPatch){
+            forEach(patches, (ptc, index) => {
               const patchesInContent = contentObj.getPatches()
-              if(patchesInContent.length > 0){
-                contentObj.applyPatch(patchesInContent[0])
-              }else{
-                hasPatch = false
+              if(patchesInContent[index][1]){
+                contentObj.applyPatch(patchesInContent[index][0])
               }
-            }
+            })
             const mergedContent = contentObj.getContent()
             mergedContent.should.be.eql(data[key].result)
           })
@@ -116,18 +110,12 @@ describe('Replace', function() {
               return contentObj.createPatch(change)
             })
             contentObj.loadPatches(patches)
-            let hasPatch = true
-            while(hasPatch){
+            forEach(patches, (ptc, index) => {
               const patchesInContent = contentObj.getPatches()
-              if(patchesInContent.length > 0){
-                contentObj.applyPatch(patchesInContent[0])
-                if(patchesInContent.length === 1){
-                  hasPatch = false
-                }
-              }else{
-                hasPatch = false
+              if(patchesInContent[index][1]){
+                contentObj.applyPatch(patchesInContent[index][0])
               }
-            }
+            })
             const mergedContent = contentObj.getContent()
             mergedContent.should.be.eql(data[key].result)
           })
@@ -155,17 +143,12 @@ describe('Mixed', function() {
             })
             contentObj.loadPatches(patches)
             let hasPatch = true
-            while(hasPatch){
+            forEach(patches, (ptc, index) => {
               const patchesInContent = contentObj.getPatches()
-              if(patchesInContent.length > 0){
-                contentObj.applyPatch(patchesInContent[0])
-                if(patchesInContent.length === 1){
-                  hasPatch = false
-                }
-              }else{
-                hasPatch = false
+              if(patchesInContent[index][1]){
+                contentObj.applyPatch(patchesInContent[index][0])
               }
-            }
+            })
             const mergedContent = contentObj.getContent()
             mergedContent.should.be.eql(data[key].result)
           })
@@ -174,4 +157,3 @@ describe('Mixed', function() {
     })
   })
 })
-

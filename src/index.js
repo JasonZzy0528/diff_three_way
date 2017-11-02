@@ -2,10 +2,8 @@
 'use strict'
 
 import concat from 'lodash/concat'
-import filter from 'lodash/filter'
 import forEach from 'lodash/forEach'
 import indexOf from 'lodash/indexOf'
-import isEqual from 'lodash/isEqual'
 import map from 'lodash/map'
 import max from 'lodash/max'
 import min from 'lodash/min'
@@ -60,26 +58,37 @@ class Content {
 
   updatePatches(patch) {
     let patches = this.patches
+    const id = patch[0].id
     if(patches.length === 0){
       return
     }
     const { content, newContent } = this
-    patches = filter(patches, ptc => {
-      return !isEqual(ptc[0], patch)
-    })
     let updatedPatches = []
     forEach(patches, ptc => {
-      if(ptc[1] === false){
-        updatedPatches.push(ptc)
+      const ptcId = ptc[0][0].id
+      if(ptcId === id){
+        updatedPatches.push([ptc[0], ptc[1], true])
       }else{
-        try{
-          const mergedResult = this.threeWayMerge(content, patch, ptc[0])
-          const mergedContent = mergedResult[0]
-          const updatedPatch = this.diffMatchPatch.patch_make(newContent, mergedContent)
-          updatedPatches.push([updatedPatch, true])
-        }catch (error){
-          console.error(error)
-          updatedPatches.push([ptc[0], false])
+        if(ptc[1] === false){
+          updatedPatches.push(ptc)
+        }else{
+          if(ptc.length === 3 && ptc[2]){
+            updatedPatches.push(ptc)
+          }else{
+            try{
+              const mergedResult = this.threeWayMerge(content, patch, ptc[0])
+              const mergedContent = mergedResult[0]
+              let updatedPatch = this.diffMatchPatch.patch_make(newContent, mergedContent)
+              updatedPatch = map(updatedPatch, tmp => {
+                tmp.id = ptcId
+                return tmp
+              })
+              updatedPatches.push([updatedPatch, true])
+            }catch (error){
+              console.log(error)
+              updatedPatches.push([ptc[0], false])
+            }
+          }
         }
       }
     })
@@ -144,6 +153,7 @@ class Content {
         }
 
         if(l === undefined){
+          console.log(i)
           throw new Error('Conflict at position ', i)
         } else {
           const op = l[0]
@@ -194,8 +204,7 @@ class Content {
   }
 
   getPatches() {
-    const patches = this.patches
-    return map(filter(patches, patch => {return patch[1]}), patch => { return patch[0] })
+    return concat([], this.patches)
   }
 
   getContent() {
@@ -214,7 +223,7 @@ class Content {
   createPatch(changes) {
     let patches = []
     forEach(changes, change => {
-      const { start, orgChars, newChars } = change
+      const { start, orgChars, newChars, id } = change
       const types = [typeof start, typeof orgChars, typeof newChars]
       let errorMessage
       if(types[0] !== 'number'){
@@ -237,7 +246,8 @@ class Content {
         start1: start,
         start2: start,
         length1: length1,
-        length2: length2
+        length2: length2,
+        id: id
       }
       patches.push(patch)
     })
