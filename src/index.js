@@ -27,9 +27,7 @@ class Content {
   }
 
   loadPatches(patches){
-    this.patches = map(patches, patch => {
-      return [patch, true] //[patch, updated]
-    })
+    this.patches = concat([], patches)
   }
 
   addPatch(patch){
@@ -38,7 +36,17 @@ class Content {
 
   applyPatch(patch, isReturnContent) {
     let content = this.content
-    forEach(patch[0], ptc => {
+    const { patchObj, id, isApplied, isUpdated } = patch
+    if(isApplied){
+      throw new Error('The patch cannot be applied, because it was applied before')
+    }
+    if(!isUpdated){
+      throw new Error('The patch cannot be applied, because it has conflict')
+    }
+    if(id === undefined || id === null){
+      throw new Error('id cannot be undefined or null')
+    }
+    forEach(patchObj, ptc => {
       const { diffs, start1, length1 } = ptc
       let replacement = ''
       forEach(diffs, diff => {
@@ -52,41 +60,126 @@ class Content {
       return content
     }else{
       this.newContent = content
-      this.updatePatches(patch[0])
+      this.updatePatches(patch)
     }
   }
 
   updatePatches(patch) {
-    let patches = this.patches
-    const id = patch[0].id
-    if(patches.length === 0){
-      return
+    let patches = concat([], this.patches)
+    const { patchObj, id } = patch
+    if(patchObj.length === 0){
+      throw new Error('patchObj cannot be empty')
     }
     const { content, newContent } = this
     let updatedPatches = []
     forEach(patches, ptc => {
-      const ptcId = ptc[0][0].id
+      const ptcId = ptc.id
       if(ptcId === id){
-        updatedPatches.push([ptc[0], ptc[1], true])
+        ptc.isApplied = true
+        ptc.isUpdated = true
+        updatedPatches.push(ptc)
       }else{
-        if(ptc[1] === false){
+        const ptcIsApplied = ptc.isApplied
+        const ptcIsUpdated = ptc.isUpdated
+        if(ptcIsApplied || !ptcIsUpdated){
           updatedPatches.push(ptc)
         }else{
-          if(ptc.length === 3 && ptc[2]){
+          const ptcObj = ptc.patchObj
+          const ptcOrgStart = ptcObj[0].start1
+          const ptcOrgEnd = ptcObj[ptcObj.length - 1].start1 + ptcObj[ptcObj.length - 1].length1
+          const patchOrgStart = patchObj[0].start1
+          const patchOrgEnd = patchObj[patchObj.length - 1].start1 + patchObj[patchObj.length - 1].length1
+          if(ptcOrgStart > patchOrgEnd) {
+            let lengthChange = 0
+            forEach(patchObj, obj => {
+              lengthChange += obj.length2 - obj.length1
+            })
+            forEach(ptcObj, (obj, index) => {
+              ptc.patchObj[index].start1 += lengthChange
+              ptc.patchObj[index].start2 += lengthChange
+            })
             updatedPatches.push(ptc)
-          }else{
-            try{
-              const mergedResult = this.threeWayMerge(content, patch, ptc[0])
+          } else if (ptcOrgEnd < patchOrgStart) {
+            updatedPatches.push(ptc)
+          } else {
+            try {
+              const mergedResult = this.threeWayMerge(content, patchObj, ptcObj)
               const mergedContent = mergedResult[0]
-              let updatedPatch = this.diffMatchPatch.patch_make(newContent, mergedContent)
-              updatedPatch = map(updatedPatch, tmp => {
+              let startChange = 0
+              let endChange = 0
+              forEach(patchObj, obj => {
+                if(obj.start1 + obj.length1 <= ptcOrgStart + startChange){
+                  startChange += obj.length2 - obj.length1
+                  endChange += obj.length2 - obj.length1
+                }else if(obj.start1 <= ptcOrgStart + startChange){
+                  let diffLength = 0
+                  forEach(obj.diffs, diff => {
+                    const opt = diff[0]
+                    const chars = diff[1]
+                    diffLength += chars.length
+                    if(obj.start1 + diffLength <= ptcOrgStart + startChange){
+                      startChange += opt * chars.length
+                      endChange += opt * chars.length
+                    }else{
+                      if(ptcOrgStart + startChange - obj.start1 - diffLength + chars.length >= 0){
+                        startChange += opt * (ptcOrgStart + startChange - obj.start1 - diffLength + chars.length)
+                      }
+                      if(obj.start1 + diffLength <= ptcOrgEnd + endChange){
+                        endChange += opt * chars.length
+                      } else if(obj.start1 + diffLength - chars.length <= ptcOrgEnd + endChange){
+                        endChange += opt * (ptcOrgEnd + endChange - obj.start1 - diffLength + chars.length)
+                      }
+                    }
+                  })
+                }else if(obj.start1 > ptcOrgStart && obj.start1 + obj.length1 <= ptcOrgEnd){
+                  let diffLength
+                  forEach(obj.diffs, diff => {
+                    const opt = diff[0]
+                    const chars = diff[1]
+                    diffLength += chars.length
+                    if(obj.start1 + diffLength <= ptcOrgEnd + endChange){
+                      endChange += opt * chars.length
+                    } else if(obj.start1 + diffLength - chars.length <= ptcOrgEnd + endChange){
+                      endChange += opt * (ptcOrgEnd + endChange - obj.start1 - diffLength + chars.length)
+                    }
+                  })
+                }
+              })
+              const newStart = ptc.patchObj[0].start1 + startChange
+              const newEnd = ptc.patchObj[ptc.patchObj.length - 1].start1 + ptc.patchObj[ptc.patchObj.length - 1].length1 + endChange
+
+              let updatedPatchObj = this.diffMatchPatch.patch_make(newContent, mergedContent)
+              updatedPatchObj = map(updatedPatchObj, (tmp, index) => {
                 tmp.id = ptcId
+                if(index === 0){
+                  if(tmp.start1 > newStart){
+                    tmp.diffs = concat([[0, newContent.substring(tmp.start1, newStart)]], tmp.diffs)
+                    tmp.length1 += tmp.start1 - newStart
+                    tmp.length2 += tmp.start2 - newStart
+                    tmp.start1 = newStart
+                    tmp.start2 = newStart
+                  }
+                }
+                if(index === updatedPatchObj.length - 1){
+                  if(tmp.start1 + tmp.length1 < newEnd){
+                    tmp.diffs = concat(tmp.diffs, [[0, newContent.substring(tmp.start1 + tmp.length1, newEnd)]])
+                    tmp.length2 = newEnd - tmp.start1 - tmp.length1 + tmp.length2
+                    tmp.length1 = newEnd - tmp.start1
+                  }
+                }
                 return tmp
               })
-              updatedPatches.push([updatedPatch, true])
-            }catch (error){
-              console.log(error)
-              updatedPatches.push([ptc[0], false])
+              const updatedPatch = {
+                patchObj: updatedPatchObj,
+                id: ptcId,
+                isApplied: false,
+                isUpdated: true
+              }
+              updatedPatches.push(updatedPatch)
+            } catch(err) {
+              console.log(err)
+              ptc.isUpdated = false
+              updatedPatches.push(ptc)
             }
           }
         }
@@ -153,7 +246,6 @@ class Content {
         }
 
         if(l === undefined){
-          console.log(i)
           throw new Error('Conflict at position ', i)
         } else {
           const op = l[0]
@@ -221,9 +313,16 @@ class Content {
   }
 
   createPatch(changes) {
-    let patches = []
-    forEach(changes, change => {
+    let patches = {
+      patchObj: [],
+      id: changes[0].id,
+      isUpdated: true,
+      isApplied: false
+    }
+    let lengthChange = 0
+    forEach(changes, (change, index) => {
       const { start, orgChars, newChars, id } = change
+      let lengthUpdate = 0
       const types = [typeof start, typeof orgChars, typeof newChars]
       let errorMessage
       if(types[0] !== 'number'){
@@ -239,17 +338,35 @@ class Content {
         throw new TypeError(errorMessage)
       }
       const diffs = this.diffMatchPatch.diff_main(orgChars, newChars)
+      forEach(diffs, diff => {
+        const opt = diff[0]
+        const length = diff[1].length
+        lengthUpdate += opt * length
+      })
       const length1 = orgChars.length
       const length2 = newChars.length
-      const patch = {
-        diffs: diffs,
-        start1: start,
-        start2: start,
-        length1: length1,
-        length2: length2,
-        id: id
+      let patch = {}
+      if(index === 0){
+        patch = {
+          diffs: diffs,
+          start1: start,
+          start2: start,
+          length1: length1,
+          length2: length2,
+          id: id
+        }
+      } else {
+        patch = {
+          diffs: diffs,
+          start1: start + lengthChange,
+          start2: start + lengthChange,
+          length1: length1,
+          length2: length2,
+          id: id
+        }
       }
-      patches.push(patch)
+      patches.patchObj.push(patch)
+      lengthChange += lengthUpdate
     })
     return patches
   }
