@@ -6,7 +6,7 @@ import filter from 'lodash/filter'
 import forEach from 'lodash/forEach'
 import startsWith from 'lodash/startsWith'
 import map from 'lodash/map'
-import Content from '../src/index'
+import Content from '../lib/js'
 import contentData from './data/content-data'
 
 const { content, tests } = contentData

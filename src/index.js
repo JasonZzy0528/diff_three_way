@@ -321,7 +321,7 @@ class Content {
     }
     let lengthChange = 0
     forEach(changes, (change, index) => {
-      const { start, orgChars, newChars, id } = change
+      const { start, orgChars, newChars } = change
       let lengthUpdate = 0
       const types = [typeof start, typeof orgChars, typeof newChars]
       let errorMessage
@@ -352,8 +352,7 @@ class Content {
           start1: start,
           start2: start,
           length1: length1,
-          length2: length2,
-          id: id
+          length2: length2
         }
       } else {
         patch = {
@@ -361,8 +360,7 @@ class Content {
           start1: start + lengthChange,
           start2: start + lengthChange,
           length1: length1,
-          length2: length2,
-          id: id
+          length2: length2
         }
       }
       patches.patchObj.push(patch)
