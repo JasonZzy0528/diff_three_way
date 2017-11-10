@@ -2,6 +2,7 @@
 'use strict'
 
 import concat from 'lodash/concat'
+import extend from 'lodash/extend'
 import forEach from 'lodash/forEach'
 import indexOf from 'lodash/indexOf'
 import map from 'lodash/map'
@@ -313,60 +314,74 @@ class Content {
   }
 
   createPatch(changes) {
-    let patches = {
-      patchObj: [],
-      id: changes[0].id,
-      isUpdated: true,
-      isApplied: false
-    }
-    let lengthChange = 0
-    forEach(changes, (change, index) => {
-      const { start, orgChars, newChars } = change
-      let lengthUpdate = 0
-      const types = [typeof start, typeof orgChars, typeof newChars]
-      let errorMessage
-      if(types[0] !== 'number'){
-        errorMessage = `Number expected, but got ${types[0]}`
+    const type = typeof changes
+    if(type === 'object'){
+      const { id, text1, text2 } = changes
+      const patchObj = this.diffMatchPatch.patch_make(text1, text2)
+      let patches = {
+        patchObj: patchObj,
+        id: id,
+        isUpdated: true,
+        isApplied: false
       }
-      if(types[1] !== 'string'){
-        errorMessage = `String expected, but got ${types[1]}`
+      return patches
+    } else if (type === 'array') {
+      let patches = {
+        patchObj: [],
+        id: changes[0].id,
+        isUpdated: true,
+        isApplied: false
       }
-      if(types[2] !== 'string'){
-        errorMessage = `String expected, but got ${types[2]}`
-      }
-      if(errorMessage){
-        throw new TypeError(errorMessage)
-      }
-      const diffs = this.diffMatchPatch.diff_main(orgChars, newChars)
-      forEach(diffs, diff => {
-        const opt = diff[0]
-        const length = diff[1].length
-        lengthUpdate += opt * length
+      let lengthChange = 0
+      forEach(changes, (change, index) => {
+        const { start, orgChars, newChars } = change
+        let lengthUpdate = 0
+        const types = [typeof start, typeof orgChars, typeof newChars]
+        let errorMessage
+        if(types[0] !== 'number'){
+          errorMessage = `Number expected, but got ${types[0]}`
+        }
+        if(types[1] !== 'string'){
+          errorMessage = `String expected, but got ${types[1]}`
+        }
+        if(types[2] !== 'string'){
+          errorMessage = `String expected, but got ${types[2]}`
+        }
+        if(errorMessage){
+          throw new TypeError(errorMessage)
+        }
+        const diffs = this.diffMatchPatch.diff_main(orgChars, newChars)
+        forEach(diffs, diff => {
+          const opt = diff[0]
+          const length = diff[1].length
+          lengthUpdate += opt * length
+        })
+        const length1 = orgChars.length
+        const length2 = newChars.length
+        let patch = {}
+        if(index === 0){
+          patch = {
+            diffs: diffs,
+            start1: start,
+            start2: start,
+            length1: length1,
+            length2: length2
+          }
+        } else {
+          patch = {
+            diffs: diffs,
+            start1: start + lengthChange,
+            start2: start + lengthChange,
+            length1: length1,
+            length2: length2
+          }
+        }
+        patches.patchObj.push(patch)
+        lengthChange += lengthUpdate
       })
-      const length1 = orgChars.length
-      const length2 = newChars.length
-      let patch = {}
-      if(index === 0){
-        patch = {
-          diffs: diffs,
-          start1: start,
-          start2: start,
-          length1: length1,
-          length2: length2
-        }
-      } else {
-        patch = {
-          diffs: diffs,
-          start1: start + lengthChange,
-          start2: start + lengthChange,
-          length1: length1,
-          length2: length2
-        }
-      }
-      patches.patchObj.push(patch)
-      lengthChange += lengthUpdate
-    })
-    return patches
+      return patches
+    }
+    throw new TypeError(`String expected, but got ${type}`)
   }
 
   genOptDiff(range, patches, content, start, end) {
@@ -412,11 +427,17 @@ class Content {
   }
 
   patchToText (patches) {
-    return this.diffMatchPatch.patch_toText(patches)
+    const { patchObj } = patches
+    const patchText = this.diffMatchPatch.patch_toText(patchObj)
+    const newPatch = extend({}, patches, { patchObj: patchText })
+    return JSON.stringify(newPatch)
   }
 
   patchFromText (text) {
-    return this.diffMatchPatch.patch_fromText(text)
+    const patch = JSON.parse(text)
+    const patchObj = this.diffMatchPatch.patch_fromText(patch.patchObj)
+    const newPatch = extend({}, patch, { patchObj: patchObj })
+    return newPatch
   }
 }
 

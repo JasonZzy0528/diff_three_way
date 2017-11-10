@@ -23,7 +23,7 @@ var content = new Content()
 
 ## API
 * `content.setContent(str)` - set 'content' of current content instance.
-* `content.createPatch(array)` - create a patch based on the input array.
+* `content.createPatch(array || object)` - create a patch based on the input array.
     Input object should look like:
     ```json
     [{
@@ -31,6 +31,14 @@ var content = new Content()
       "orgChars": ">", // the origin characters
       "newChars": ">Wonderful "  // the updated characters
     }]
+    ```
+    or
+    ```json
+    {
+      "text1": ">",
+      "text2": ">Wonderful ",
+      "id": 123
+    }
     ```
 * `content.loadPatches(array)` - load patches(array of patch object) to current content instance.
 * `content.getPatches()` - get patches(array of patch object) in current content instance.
