@@ -5,6 +5,7 @@ import concat from 'lodash/concat'
 import extend from 'lodash/extend'
 import forEach from 'lodash/forEach'
 import indexOf from 'lodash/indexOf'
+import isArray from 'lodash/isArray'
 import map from 'lodash/map'
 import max from 'lodash/max'
 import min from 'lodash/min'
@@ -315,7 +316,7 @@ class Content {
 
   createPatch(changes) {
     const type = typeof changes
-    if(type === 'object'){
+    if(type === 'object' && !isArray(changes)){
       const { id, text1, text2 } = changes
       const patchObj = this.diffMatchPatch.patch_make(text1, text2)
       let patches = {
@@ -325,7 +326,7 @@ class Content {
         isApplied: false
       }
       return patches
-    } else if (type === 'array') {
+    } else if (type === 'object') {
       let patches = {
         patchObj: [],
         id: changes[0].id,
