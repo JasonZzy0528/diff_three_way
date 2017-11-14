@@ -118,7 +118,6 @@ class Content {
                   forEach(obj.diffs, diff => {
                     const opt = diff[0]
                     const chars = diff[1]
-                    diffLength += chars.length
                     if(obj.start1 + diffLength <= ptcOrgStart + startChange){
                       startChange += opt * chars.length
                       endChange += opt * chars.length
@@ -132,47 +131,121 @@ class Content {
                         endChange += opt * (ptcOrgEnd + endChange - obj.start1 - diffLength + chars.length)
                       }
                     }
+                    diffLength += chars.length
                   })
                 }else if(obj.start1 > ptcOrgStart && obj.start1 + obj.length1 <= ptcOrgEnd){
                   let diffLength
                   forEach(obj.diffs, diff => {
                     const opt = diff[0]
                     const chars = diff[1]
-                    diffLength += chars.length
                     if(obj.start1 + diffLength <= ptcOrgEnd + endChange){
                       endChange += opt * chars.length
                     } else if(obj.start1 + diffLength - chars.length <= ptcOrgEnd + endChange){
                       endChange += opt * (ptcOrgEnd + endChange - obj.start1 - diffLength + chars.length)
                     }
+                    diffLength += chars.length
                   })
                 }
               })
               const newStart = ptc.patchObj[0].start1 + startChange
               const newEnd = ptc.patchObj[ptc.patchObj.length - 1].start1 + ptc.patchObj[ptc.patchObj.length - 1].length1 + endChange
-
               let updatedPatchObj = this.diffMatchPatch.patch_make(newContent, mergedContent)
-              updatedPatchObj = map(updatedPatchObj, (tmp, index) => {
-                tmp.id = ptcId
-                if(index === 0){
-                  if(tmp.start1 > newStart){
-                    tmp.diffs = concat([[0, newContent.substring(tmp.start1, newStart)]], tmp.diffs)
-                    tmp.length1 += tmp.start1 - newStart
-                    tmp.length2 += tmp.start2 - newStart
-                    tmp.start1 = newStart
-                    tmp.start2 = newStart
+              let tmpDiffs = []
+              let length2Change = 0
+              forEach(updatedPatchObj, (tmp, index) => {
+                if(tmp.start1 > newEnd || tmp.start1 + tmp.length1 < newStart){
+                  return
+                }
+                if (tmp.start1 <= newStart) {
+                  if(tmp.start1 + tmp.length1 < newStart){
+                    return
+                  } else {
+                    let tmpLength = 0
+                    forEach(tmp.diffs, diff => {
+                      let opt = diff[0]
+                      let chars = diff[1]
+                      if (opt === 0) {
+                        if (chars.length + tmp.start1 + tmpLength > newStart && chars.length + tmp.start1 + tmpLength <= newEnd) {
+                          tmpDiffs.push([opt, chars.substring(newStart - tmp.start1 - tmpLength, chars.length)])
+                        } else if (chars.length + tmp.start1 + tmpLength >= newStart && chars.length + tmp.start1 + tmpLength >= newEnd && tmp.start1 + tmpLength < newEnd) {
+                          tmpDiffs.push([opt, chars.substring(chars.length + tmp.start1 + tmpLength - newStart, newEnd - tmp.start1 - tmpLength)])
+                        }
+                        tmpLength += chars.length
+                      } else {
+                        if (tmp.start1 + tmpLength <= newEnd) {
+                          tmpDiffs.push(diff)
+                          length2Change += opt * chars.length
+                        }
+                      }
+                    })
+                  }
+                } else if(tmp.start1 >= newStart) {
+                  if(tmp.start1 > newEnd){
+                    return
+                  }
+                  if (tmp.start1 + tmp.length1 >= newEnd) {
+                    if(index === 0){
+                      tmpDiffs.push([0, newContent.substring(newStart, tmp.start1)])
+                      let tmpLength = 0
+                      forEach(tmp.diffs, diff => {
+                        let opt = diff[0]
+                        let chars = diff[1]
+                        if (opt === 0) {
+                          if (chars.length + tmp.start1 + tmpLength > newEnd) {
+                            tmpDiffs.push([opt, chars.substring(0, newEnd - tmp.start1 - tmpLength)])
+                          }
+                          tmpLength += chars.length
+                        } else {
+                          if (tmp.start1 + tmpLength < newEnd) {
+                            tmpDiffs.push(diff)
+                            length2Change += opt * chars.length
+                          }
+                        }
+                      })
+                    }else{
+                      let tmpLength = 0
+                      forEach(tmp.diffs, diff => {
+                        let opt = diff[0]
+                        let chars = diff[1]
+                        if (opt === 0) {
+                          if (chars.length + tmp.start1 + tmpLength > newEnd) {
+                            tmpDiffs.push([opt, chars.substring(0, newEnd - tmp.start1 - tmpLength)])
+                          } else {
+                            tmpDiffs.push(diff)
+                          }
+                          tmpLength += chars.length
+                        } else {
+                          if (tmp.start1 + tmpLength < newEnd) {
+                            tmpDiffs.push(diff)
+                            length2Change += opt * chars.length
+                          }
+                        }
+                      })
+                    }
+                  } else {
+                    if(index === 0){
+                      tmpDiffs.push([0, newContent.substring(newStart, tmp.start1)])
+                    }
+                    tmpDiffs = concat(tmpDiffs, tmp.diffs)
                   }
                 }
                 if(index === updatedPatchObj.length - 1){
-                  if(tmp.start1 + tmp.length1 < newEnd){
-                    tmp.diffs = concat(tmp.diffs, [[0, newContent.substring(tmp.start1 + tmp.length1, newEnd)]])
-                    tmp.length2 = newEnd - tmp.start1 - tmp.length1 + tmp.length2
-                    tmp.length1 = newEnd - tmp.start1
+                  if(tmp.start1 + tmp.length1 <= newEnd){
+                    tmpDiffs.push([0, newContent.substring(tmp.start1 + tmp.length1, newEnd)])
                   }
                 }
-                return tmp
               })
+              let tmpPatchObj = [
+                {
+                  diffs: tmpDiffs,
+                  start1: newStart,
+                  start2: newStart,
+                  length1: newEnd - newStart,
+                  length2: newEnd - newStart + length2Change
+                }
+              ]
               const updatedPatch = {
-                patchObj: updatedPatchObj,
+                patchObj: tmpPatchObj,
                 id: ptcId,
                 isApplied: false,
                 isUpdated: true
@@ -201,15 +274,24 @@ class Content {
     forEach(optB, patch => {
       const { start1, length1, length2 } = patch
       optBCharsRange.push(start1 - optBChanges)
-      optBCharsRange.push(start1 - optBChanges + length1)
+      if(start1 === 0){
+        optBCharsRange.push(start1 - optBChanges + length1 - 1)
+      }else{
+        optBCharsRange.push(start1 - optBChanges + length1)
+      }
       optBChanges += length2 - length1
     })
     forEach(optC, patch => {
       const { start1, length1, length2 } = patch
       optCCharsRange.push(start1 - optCChanges)
-      optCCharsRange.push(start1 - optCChanges + length1)
+      if(start1 === 0){
+        optCCharsRange.push(start1 - optCChanges + length1 - 1)
+      }else{
+        optCCharsRange.push(start1 - optCChanges + length1)
+      }
       optCChanges += length2 - length1
     })
+
     const start = min([min(optBCharsRange), min(optCCharsRange)])
     const end = max([max(optBCharsRange), max(optCCharsRange)])
     if(end >= contentLength) throw new Error('incorrect patch')

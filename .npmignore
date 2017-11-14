@@ -4,3 +4,4 @@ src
 test
 .babelrc
 .eslintrc
+test.js
