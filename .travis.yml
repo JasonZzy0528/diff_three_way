@@ -5,10 +5,6 @@ language: node_js
 node_js:
   - "9"
 
-install:
-  - npm install
-  - npm install -g codecov
-
 branches:
   only:
     - master
@@ -29,7 +25,8 @@ script:
       npm run build
     elif [ "$TEST_TYPE" = test ]; then
       npm run test
-    elif [ "$TEST_TYPE" = test ]; then
+    elif [ "$TEST_TYPE" = coverage ]; then
+      npm install -g codecov
       istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
       codecov
     fi
