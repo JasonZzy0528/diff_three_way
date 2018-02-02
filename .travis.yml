@@ -6,6 +6,7 @@ node_js:
   - "9"
 
 install:
+  - npm install
   - npm install -g codecov
 
 branches:
@@ -18,6 +19,7 @@ env:
     - TEST_TYPE=lint
     - TEST_TYPE=build
     - TEST_TYPE=test
+    - TEST_TYPE=coverage
 
 script:
   - |
@@ -27,6 +29,7 @@ script:
       npm run build
     elif [ "$TEST_TYPE" = test ]; then
       npm run test
+    elif [ "$TEST_TYPE" = test ]; then
+      istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
+      codecov
     fi
-  - istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
-  - codecov
