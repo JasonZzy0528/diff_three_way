@@ -27,6 +27,6 @@ script:
       npm run test
     elif [ "$TEST_TYPE" = coverage ]; then
       npm install -g codecov
-      istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
+      npm run test:cov
       codecov
     fi
