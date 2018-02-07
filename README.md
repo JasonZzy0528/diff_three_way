@@ -2,6 +2,7 @@
 
 [![Travis](https://travis-ci.org/JasonZzy0528/diff_three_way.svg)](https://travis-ci.org/JasonZzy0528/diff_three_way)
 [![npm package](https://img.shields.io/npm/v/diff_three_way.svg?style=flat-square)](https://www.npmjs.com/package/diff_three_way)
+[![Coverage Status](https://codecov.io/gh/JasonZzy0528/diff_three_way/branch/develop/graph/badge.svg)](https://codecov.io/gh/JasonZzy0528/diff_three_way)
 
 ## Installation
 
